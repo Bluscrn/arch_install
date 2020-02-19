@@ -87,7 +87,7 @@ timedatectl set-ntp true
 Additionally, you can verify the clock status with the `timedatectl status` and `date` commands.
 
 ## Partitioning
-We're assuming that the drive we're installing on is /dev/sdx. Of course, you should check which drive you want to install to. `lsblk` Helps you identify disks easily.
+We're assuming that the drive we're installing on is /dev/nvme0n1. Of course, you should check which drive you want to install to. `lsblk` Helps you identify disks easily.
 
 NOTE: If you're installing in BIOS/MBR mode, you want to use fdisk instead of gdisk and always follow the GRUB path for the boot loader.
 
@@ -125,14 +125,14 @@ You can choose to use other filesystems if you want to, but beware that you can'
 We're going for the following layout:
 ```txt
 DEVICE       MOUNTPOINT    FS       SIZE/NOTE
-/dev/sdx1    /boot         FAT32    512M (ESP)
-/dev/sdx2    /             XFS     40G-80G
-/dev/sdx3    /home         XFS     Remainder of the disk (minus SWAP)
+/dev/nvme0n1p1    /boot         FAT32    512M (ESP)
+/dev/nvme0n1p2    /             XFS     40G-80G
+/dev/nvme0n1p3    /home         XFS     Remainder of the disk (minus SWAP)
 ```
 
 ### Setup
 Steps to partition your disk:
-- Run `fdisk /dev/sdx`
+- Run `fdisk /dev/nvme0n1`
 - Press `g` to create a new partition table
 - Press `n` to start creating a new partition
 - Press `Return` to accept default partition number 1
@@ -146,31 +146,31 @@ Steps to partition your disk:
 Press `w` to write your changed to disk. gdisk/fdisk will ask to confirm your changes and still let you quit without writing anything if you've messed up entering the partition data. After gdisk has exited, run `lsblk` to confirm that what you did was actually correct. If need be, you can repeat setting up your partitions with gdisk.
 
 lsblk should report something along the lines of:
-- /dev/sdx1
-- /dev/sdx2
-- /dev/sdx3
-- /dev/sdx4 (optional, swap)
+- /dev/nvme0n1p1
+- /dev/nvme0n1p2
+- /dev/nvme0n1p3
+- /dev/nvme0n1p4 (optional, swap)
 
 ### Formatting
 Before you can use the partitions you set up, you have to format them.
 
-- `mkfs.fat -F32 /dev/sdx1`
-- `mkfs.xfs /dev/sdx2`
-- `mkfs.xfs /dev/sdx3`
-- `mkswap /dev/sdx4` (optional)
+- `mkfs.fat -F32 /dev/nvme0n1p1`
+- `mkfs.xfs /dev/nvme0n1p2`
+- `mkfs.xfs /dev/nvme0n1p3`
+- `mkswap /dev/nvme0n1p4` (optional)
 
 ### Mounting
 This is how we want to mount the partitions:
-- /dev/sdx1 -> /mnt/boot
-- /dev/sdx2 -> /mnt
-- /dev/sdx3 -> /mnt/home
+- /dev/nvme0n1p1 -> /mnt/boot
+- /dev/nvme0n1p2 -> /mnt
+- /dev/nvme0n1p3 -> /mnt/home
 
 You can accomplish this by running the following commands in order:
-- `mount /dev/sdx2 /mnt`
+- `mount /dev/nvme0n1p2 /mnt`
 - `mkdir /mnt/boot`
-- `mount /dev/sdx1 /mnt/boot`
+- `mount /dev/nvme0n1p1 /mnt/boot`
 - `mkdir /mnt/home`
-- `mount /dev/sdx3 /mnt/home`
+- `mount /dev/nvme0n1p3 /mnt/home`
 
 You can confirm if you've ran the commands correctly by running the `mount` command without any arguments. This should yield a result similar to the following:
 ```
@@ -197,7 +197,7 @@ I personally recommend choosing between either GRUB or SystemD-boot. GRUB is fai
 First you have to install GRUB. `pacman -S grub os-prober dosfstools`
 
 Once GRUB is installed, configuration is quite straightforward. Just run these commands:
-- `grub-install --recheck /dev/sdx`
+- `grub-install --recheck /dev/nvme0n1`
 - `grub-mkconfig -o /boot/grub/grub.cfg`
 
 ### SystemD-boot
@@ -216,12 +216,12 @@ The boot entry file is going to live at `/boot/loader/entries/arch.conf`, so run
 Now we're getting into the vim magic.
 - Make sure you're in normal mode by slapping ESC like a maniac.
 - Then type `:r !blkid` to run the `blkid` command and get its output.
-- We want to copy the UUID for our root partition, which should be at `/dev/sdx2`. Type `/sdx2` to jump to the line which has the UUID for our root partition.
+- We want to copy the UUID for our root partition, which should be at `/dev/nvme0n1p2`. Type `/nvme0n1p2` to jump to the line which has the UUID for our root partition.
 - Exit to normal mode by pressing enter. Now type `vi"` to select the UUID for the partition. Yes that is correct, you actually have to type the " as if you were just editing regularly.
 - Now press `y` to copy the UUID.
 - Move your cursor to the top of the file and press `p` to paste the UUID onto the first line.
 - Now enter insert mode at the end of the line by typing `A` (capitalisation matters!)
--  Add some newlines after it by pressing enter, we want the UUID to be separated from the rest of the blkid command output.
+- Add some newlines after it by pressing enter, we want the UUID to be separated from the rest of the blkid command output.
 - Exit to normal mode by pressing ESC and move your cursor over the blkid command output.
 - Type `vapd` to get rid of it all.
 - Now enter insert mode by pressing `i` and edit the file to look like the example below. Typing `:wq` will write your changes and exit vim.
