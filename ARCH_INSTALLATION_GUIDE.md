@@ -43,7 +43,7 @@ Alternatively, from an existing Arch Linux installation run:
 
 ## Boot the live environment
 
-The live environment can be booted from a USB flash drive, an optical disc or a network with PXE. For alternative means of installation, see https://wiki.archlinux.org/index.php/Category:Installation_process
+The live environment can be booted from a USB flash drive, an optical disc or a network with PXE. For an alternative means of installation, see https://wiki.archlinux.org/index.php/Category:Installation_process
 
 ##### Note:
 ```
@@ -63,11 +63,18 @@ Let's get rolling!
 
 Assuming our wireless network was `network` and our passphrase was `passphrase`
 
+Start the dhcp client with `systemctl start dhcpd`
+Find your wireless interface with `ip link` *probably wlp2s0 or wlan1*
+Connect to your wireless network
 ```
-systemctl start dhcpd
-ip link
 wpa_supplicant -B -i <interface> -c <(wpa_passphrase network 'passphrase')
 ```
+Make sure you recieved an ip address `ip addr`
+Test Connectivity `ping archlinux.org`
+
+### Pull up this guide in another tty 
+
+
 
 ### System clock
 Your system clock has to be accurate for the setup to work properly. Synchronise the clock with the following command.
