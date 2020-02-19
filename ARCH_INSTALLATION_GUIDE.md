@@ -1,16 +1,49 @@
-# Arch Linux installation guide
-Hi there, this is a guide to install Arch Linux on your computer. I decided to write a guide because I find most other guides to be either too minimalistic or they have you set up some parts of the system in strange ways.
+### Arch Linux installation guide on 2017 Dell-XPS 15 core i5
+Hi there, this is a guide to install Arch Linux on your computer. I have adapted this guide from BrinkerVII on GitHub for my Nvme laptop that does not like ext4.  I install Plasma w/sddm, smart-card capabilities, WiFi, 
 
 This guide is reference material for myself, as well as for other people who would like to install Arch for the first time.
 
-# General notes
-* This guide does assume that you are somewhat of a technically savvy user.
+*General notes*
+* This guide does assume that you are somewhat of a technically savvy user. (Hopefully this disclaimer can go away!)
 * Have fun! Breaking stuff is part of the process and there's always a way to fix it. Don't be afraid :)
-* Dual booting sucks. If you are installing Arch Linux alongside another operating system like Microsoft Windows, I recommend installing Arch on its own hard drive. If you are using an EFI system, you can even have multiple boot managers through your motherboard firmware.
 
-**Thank-you notes**
+**Thank-you**
 
-Thanks to the wonderful people on the [Linux Masterrace subreddit](https://www.reddit.com/r/linuxmasterrace/comments/8j1dlb/i_wrote_an_arch_installation_guide_what_do_you/) for reviewing the first version of this guide.
+Thank you to BrinkerVII brinkervii@gmail.com for writing this guide.
+Thanks to the wonderful people on the [Linux Masterrace subreddit](https://www.reddit.com/r/linuxmasterrace/comments/8j1dlb/i_wrote_an_arch_installation_guide_what_do_you/) for reviewing BrinkerVII's first version of this guide.
+
+## Pre-installation
+
+The installation media and their GnuPG signatures can be acquired from the Download page.
+Verify signature
+
+It is recommended to verify the image signature before use, especially when downloading from an HTTP mirror, where downloads are generally prone to be intercepted to serve malicious images.
+
+On a system with GnuPG installed, do this by downloading the PGP signature (under Checksums) to the ISO directory, and verifying it with:
+
+`$ gpg --keyserver-options auto-key-retrieve --verify archlinux-version-x86_64.iso.sig`
+
+Alternatively, from an existing Arch Linux installation run:
+
+`$ pacman-key -v archlinux-version-x86_64.iso.sig`
+
+```
+Note:
+
+    The signature itself could be manipulated if it is downloaded from a mirror site, instead of from archlinux.org as above. In this case, ensure that the public key, which is used to decode the signature, is signed by another, trustworthy key. The gpg command will output the fingerprint of the public key.
+    Another method to verify the authenticity of the signature is to ensure that the public key's fingerprint is identical to the key fingerprint of the Arch Linux developer who signed the ISO-file. See Wikipedia:Public-key cryptography for more information on the public-key process to authenticate keys.
+```
+
+# Boot the live environment
+
+The live environment can be booted from a USB flash drive, an optical disc or a network with PXE. For alternative means of installation, see Category:Installation process.
+
+    Pointing the current boot device to a drive containing the Arch installation media is typically achieved by pressing a key during the POST phase, as indicated on the splash screen. Refer to your motherboard's manual for details.
+    When the Arch menu appears, select Boot Arch Linux and press Enter to enter the installation environment.
+    See README.bootparams for a list of boot parameters, and packages.x86_64 for a list of included packages.
+    You will be logged in on the first virtual console as the root user, and presented with a Zsh shell prompt.
+
+To switch to a different console—for example, to view this guide with ELinks alongside the installation—use the Alt+arrow shortcut. To edit configuration files, nano, vi and vim are available. 
 
 # The Guide
 Let's get rolling!
