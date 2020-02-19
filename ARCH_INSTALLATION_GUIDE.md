@@ -64,12 +64,15 @@ Let's get rolling!
 Assuming our wireless network was `network` and our passphrase was `passphrase`
 
 Start the dhcp client with `systemctl start dhcpd`
+
 Find your wireless interface with `ip link` *probably wlp2s0 or wlan1*
+
 Connect to your wireless network
 ```
 wpa_supplicant -B -i <interface> -c <(wpa_passphrase network 'passphrase')
 ```
 Make sure you recieved an ip address `ip addr`
+
 Test Connectivity `ping archlinux.org`
 
 ### Pull up this guide in another tty 
