@@ -59,9 +59,10 @@ Let's get rolling!
 
 Assuming our wireless network was `network` and our passphrase was `passphrase`
 
-```systemctl start dhcpd
+```
+systemctl start dhcpd
 ip link
-wpa_supplicant -B -i <interface> -c <(wpa_passphrase *network *'passphrase')
+wpa_supplicant -B -i <interface> -c <(wpa_passphrase *network* *'passphrase'*)
 ```
 
 ### System clock
