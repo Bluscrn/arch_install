@@ -1,4 +1,4 @@
-### Arch Linux installation guide on 2017 Dell-XPS 15 core i5
+# Arch Linux installation guide on 2017 Dell-XPS 15 core i5
 Hi there, this is a guide to install Arch Linux on your computer. I have adapted this guide from BrinkerVII on GitHub for my Nvme laptop that does not like ext4.  I install Plasma w/sddm, smart-card capabilities, WiFi, 
 
 This guide is reference material for myself, as well as for other people who would like to install Arch for the first time.
@@ -14,8 +14,9 @@ Thanks to the wonderful people on the [Linux Masterrace subreddit](https://www.r
 
 ## Pre-installation
 
-The installation media and their GnuPG signatures can be acquired from the Download page.
-Verify signature
+The installation media and their GnuPG signatures can be acquired from the https://archlinux.org/download/ page.
+
+###Verify signature
 
 It is recommended to verify the image signature before use, especially when downloading from an HTTP mirror, where downloads are generally prone to be intercepted to serve malicious images.
 
@@ -27,33 +28,43 @@ Alternatively, from an existing Arch Linux installation run:
 
 `$ pacman-key -v archlinux-version-x86_64.iso.sig`
 
+
+##### Note:
 ```
-Note:
-
-    The signature itself could be manipulated if it is downloaded from a mirror site, instead of from archlinux.org as above. In this case, ensure that the public key, which is used to decode the signature, is signed by another, trustworthy key. The gpg command will output the fingerprint of the public key.
-    Another method to verify the authenticity of the signature is to ensure that the public key's fingerprint is identical to the key fingerprint of the Arch Linux developer who signed the ISO-file. See Wikipedia:Public-key cryptography for more information on the public-key process to authenticate keys.
+    The signature itself could be manipulated if it is downloaded from a mirror site,
+    instead of from https://archlinux.org/download/ as above. In this case, ensure that the public key, 
+    which is used to decode the signature, is signed by another, trustworthy key. The 
+    gpg command will output the fingerprint of the public key. Another method to verify 
+    the authenticity of the signature is to ensure that the public key's fingerprint is 
+    identical to the key fingerprint of the https://www.archlinux.org/people/developers/ who signed the ISO-file. 
+    See https://en.wikipedia.org/wiki/Public-key_cryptography for more information on the public-key process to authenticate keys.
 ```
 
-# Boot the live environment
+## Boot the live environment
 
-The live environment can be booted from a USB flash drive, an optical disc or a network with PXE. For alternative means of installation, see Category:Installation process.
+The live environment can be booted from a USB flash drive, an optical disc or a network with PXE. For alternative means of installation, see https://wiki.archlinux.org/index.php/Category:Installation_process
 
-    Pointing the current boot device to a drive containing the Arch installation media is typically achieved by pressing a key during the POST phase, as indicated on the splash screen. Refer to your motherboard's manual for details.
-    When the Arch menu appears, select Boot Arch Linux and press Enter to enter the installation environment.
-    See README.bootparams for a list of boot parameters, and packages.x86_64 for a list of included packages.
+    Pointing the current boot device to a drive containing the Arch installation media is typically achieved 
+    by pressing a key during the POST phase, as indicated on the splash screen. Refer to your motherboard's 
+    manual for details. When the Arch menu appears, select Boot Arch Linux and press Enter to enter the installation 
+    environment. See README.bootparams for a list of boot parameters, and packages.x86_64 for a list of included packages.
     You will be logged in on the first virtual console as the root user, and presented with a Zsh shell prompt.
 
-To switch to a different console—for example, to view this guide with ELinks alongside the installation—use the Alt+arrow shortcut. To edit configuration files, nano, vi and vim are available. 
+To switch to a different console—for example, to view this guide with ELinks alongside the installation—use the Alt+arrow shortcut. 
 
 # The Guide
 Let's get rolling!
 
-## Network Config
+### Network Config
+
+Assuming our wireless network was `network` and our passphrase was `passphrase`
+
 ```systemctl start dhcpd
-wpa_supplicant -B -i wlp2s0 -c <(wpa_passphrase Glenn-5ghz passphrase)
+ip link
+wpa_supplicant -B -i <interface> -c <(wpa_passphrase *network *'passphrase')
 ```
 
-## System clock
+### System clock
 Your system clock has to be accurate for the setup to work properly. Synchronise the clock with the following command.
 ```sh
 timedatectl set-ntp true
@@ -164,17 +175,17 @@ Bootstrapping the system is fairly easy. You just have to run the following comm
 
 Congratulations, you've now installed Arch on your hard drive and you're technically 'booted' into it!
 
-### Installing the boot loader
+## Installing the boot loader
 I personally recommend choosing between either GRUB or SystemD-boot. GRUB is fairly commonly used and you're probably going to find a lot of help online. SystemD-boot comes included with SystemD, Arch uses SystemD as its init system.
 
-#### GRUB
+### GRUB
 First you have to install GRUB. `pacman -S grub os-prober dosfstools`
 
 Once GRUB is installed, configuration is quite straightforward. Just run these commands:
 - `grub-install --recheck /dev/sdx`
 - `grub-mkconfig -o /boot/grub/grub.cfg`
 
-#### SystemD-boot
+### SystemD-boot
 SystemD-boot comest installed with Arch. You just have to run `bootctl install` to install it into your EFI partition.
 
 Side-note: if you get a warning or error about not being able to set EFI variables, you'll have to install the `efivar` and `efibootmgr` packages. This will allow bootctl to tell your motherboard firmware where its boot image is located
@@ -182,7 +193,7 @@ Side-note: if you get a warning or error about not being able to set EFI variabl
 pacman -S efivar efibootmgr
 ```
 
-##### Creating a new boot entry
+#### Creating a new boot entry
 The easiest way of getting the boot entry file correct in the terminal is through vim. Vim does not come with Arch, so you're going to have to install it. Run `pacman -S vim`
 
 The boot entry file is going to live at `/boot/loader/entries/arch.conf`, so run `vim /boot/loader/entries/arch.conf` to start editing the file at that location.
@@ -207,7 +218,7 @@ initrd /initramfs-linux.img
 options root=UUID=THE_UUID_YOU_COPIED rw quiet splash
 ```
 
-##### Setting the default boot entry
+#### Setting the default boot entry
 For this part you can still use vim if you want, but `nano` tends to be perceived to be more user friendly. So in most of the upcoming commands you can substitute `vim` for `nano` if you want to.
 
 Open an editor to edit `/boot/loader/loader.conf`. Run `vim /boot/loader/loader.conf` The file should look like the snippet below before you save it.
@@ -220,8 +231,9 @@ default arch
 Other setup guides tend to use the networking provided by SystemD, however, I don't like that. So I'm going to show you how I do it.
 
 Run the following commands:
-- `pacman -S networkmanager`
+- `pacman -S networkmanager plasma-nm`
 - `systemctl enable NetworkManager`
+- 'systemctl enable dhcpcd'
 
 Congratulations, NetworkManager is now installed and enabled. You should not have to mess with networking from this point on unless you're trying to set up over wireless. In that case you should look over the documentation about `nmtui` (The NetworkManager Text User Interface).
 
