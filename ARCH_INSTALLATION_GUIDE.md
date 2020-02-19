@@ -3,7 +3,7 @@ Hi there, this is a guide to install Arch Linux on your computer. I have adapted
 
 This guide is reference material for myself, as well as for other people who would like to install Arch for the first time.
 
-*General notes*
+**General notes**
 * This guide does assume that you are somewhat of a technically savvy user. (Hopefully this disclaimer can go away!)
 * Have fun! Breaking stuff is part of the process and there's always a way to fix it. Don't be afraid :)
 
@@ -16,7 +16,7 @@ Thanks to the wonderful people on the [Linux Masterrace subreddit](https://www.r
 
 The installation media and their GnuPG signatures can be acquired from the https://archlinux.org/download/ page.
 
-###Verify signature
+### Verify signature
 
 It is recommended to verify the image signature before use, especially when downloading from an HTTP mirror, where downloads are generally prone to be intercepted to serve malicious images.
 
@@ -36,21 +36,25 @@ Alternatively, from an existing Arch Linux installation run:
     which is used to decode the signature, is signed by another, trustworthy key. The 
     gpg command will output the fingerprint of the public key. Another method to verify 
     the authenticity of the signature is to ensure that the public key's fingerprint is 
-    identical to the key fingerprint of the https://www.archlinux.org/people/developers/ who signed the ISO-file. 
-    See https://en.wikipedia.org/wiki/Public-key_cryptography for more information on the public-key process to authenticate keys.
+    identical to the key fingerprint of the https://www.archlinux.org/people/developers/ who signed the 
+    ISO-file. See https://en.wikipedia.org/wiki/Public-key_cryptography for more information on the 
+    public-key process to authenticate keys.
 ```
 
 ## Boot the live environment
 
 The live environment can be booted from a USB flash drive, an optical disc or a network with PXE. For alternative means of installation, see https://wiki.archlinux.org/index.php/Category:Installation_process
 
-    Pointing the current boot device to a drive containing the Arch installation media is typically achieved 
-    by pressing a key during the POST phase, as indicated on the splash screen. Refer to your motherboard's 
-    manual for details. When the Arch menu appears, select Boot Arch Linux and press Enter to enter the installation 
-    environment. See README.bootparams for a list of boot parameters, and packages.x86_64 for a list of included packages.
-    You will be logged in on the first virtual console as the root user, and presented with a Zsh shell prompt.
-
-To switch to a different console—for example, to view this guide with ELinks alongside the installation—use the Alt+arrow shortcut. 
+##### Note:
+```
+    Pointing the current boot device to a drive containing the Arch installation media is typically 
+    achieved by pressing a key during the POST phase, as indicated on the splash screen. Refer to 
+    your motherboard's manual for details. When the Arch menu appears, select Boot Arch Linux and 
+    press Enter to enter the installation environment. See README.bootparams for a list of boot 
+    parameters, and packages.x86_64 for a list of included packages. You will be logged in on the 
+    first virtual console as the root user, and presented with a Zsh shell prompt.
+```
+To switch to a different console (e.g. to view this guide with ELinks alongside the installation) use the Alt+arrow shortcut. 
 
 # The Guide
 Let's get rolling!
@@ -62,7 +66,7 @@ Assuming our wireless network was `network` and our passphrase was `passphrase`
 ```
 systemctl start dhcpd
 ip link
-wpa_supplicant -B -i <interface> -c <(wpa_passphrase *network* *'passphrase'*)
+wpa_supplicant -B -i <interface> -c <(wpa_passphrase network 'passphrase')
 ```
 
 ### System clock
