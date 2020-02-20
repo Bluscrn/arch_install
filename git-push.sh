@@ -13,6 +13,10 @@
 #
 ##################################################################################################################
 
+# apply security key for this repo
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/server.brandon.glenn@github.id_rsa
+
 # checking if I have the latest files from github
 echo "Checking for newer files online first"
 git pull
