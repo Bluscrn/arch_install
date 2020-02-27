@@ -181,7 +181,7 @@ You should at the very least read the following paragraphs before you start, but
 Your root partition is also the root of your Linux file system tree. This guide has you install your system (/usr, /lib, /var, /etc,...) into this partition. If you follow my partitioning scheme you should make this partition large enough to fit all of the stuff you're going to install. 80GB is quite generous, however, if you are already running another GNU/Linux distribution, you should check how much space your system files are using and use that as a baseline. If you're not running a GNU/Linux distribution or are unfamiliar with the ecosystem, its probably better to go with 80GB to 100GB.
 
 #### The efi partition
-If you are running in EFI mode, you need an ESP partition. Ubuntu based distributions mount the ESP partition inside `/boot` at `/boot/efi`, but I find this to be quite messy, not only that, it is incompatible with SystemD-boot.  We will create an `/efi` partition, and make it large enough for Arch and another distro.  If you plan to multi-boot, or dual-boot Windows, you should probably make this bigger.  Suggested reading - [EFI System Partition](https://wiki.archlinux.org/index.php/EFI_system_partition)
+If you are running in EFI mode, you need an ESP partition. We will create an `/efi` partition, and bind mount it to /boot, so that when the kernel get updated, your system will still boot.  We will make this large enough for two, maybe three distro's, but if you plan to boot more, or dual-boot Windows, you should probably make this bigger.  Suggested reading - [EFI System Partition](https://wiki.archlinux.org/index.php/EFI_system_partition)
 
 #### The home partition
 The home partition is not required to be a seperate partition either, however, having it separate allows you to mount this partition when or if you decide to boot into another distro and still have all your documents and settings in the right place. This partition should also be very large, it is where you will store the majority of your files.
@@ -193,7 +193,7 @@ Linux uses a swap file or a swap partition for when it runs out of memory for ap
 
 The size of your swap partition or swap file depends on what you want to do with your computer. If you want to be able to use the hibernate functionality, your swap partition or file should at least be the size of your system memory. When you hibernate your computer, Linux uses the swap to store the contents of your memory. If the swap isn't big enough, things will go badly.
 
-You can always be a rebel and run without swap, but don't be surprised when the OOM (Out of Memory) killer comes around the corner and running applications start disappearing (the enormous stuttering will be a dead giveaway that you're running out of memory when you don't have any swap space).
+You can always be a rebel and run without swap, but don't be surprised when OOM (Out of Memory) hits and running applications start disappearing (the enormous stuttering will be a dead giveaway that you're running out of memory when you don't have any swap space).
 
 #### File system types
 This guide uses [xfs](https://wiki.archlinux.org/index.php/XFS) for the root and home partitions. The ESP `/efi` partition _has_ to be FAT32.
@@ -204,15 +204,9 @@ You can choose to use [other filesystems](https://wiki.archlinux.org/index.php/F
 This is a `df` of my system with Arch, KDE and a couple of small packages installed. 
 ```txt
 Filesystem     Type      Size  Used Avail Use% Mounted on
-dev            devtmpfs  3.8G     0  3.8G   0% /dev
-run            tmpfs     3.8G  1.7M  3.8G   1% /run
 /dev/nvme0n1p2 xfs        80G   13G   68G  17% /
-tmpfs          tmpfs     3.8G  584M  3.3G  16% /dev/shm
-tmpfs          tmpfs     3.8G     0  3.8G   0% /sys/fs/cgroup
-tmpfs          tmpfs     3.8G  4.0K  3.8G   1% /tmp
 /dev/nvme0n1p3 xfs       159G   14G  146G   9% /home
 /dev/nvme0n1p1 vfat      197M   64M  134M  33% /efi
-tmpfs          tmpfs     778M   16K  778M   1% /run/user/1000
 ```
 
 ### Partition layout for this guide
@@ -359,12 +353,6 @@ SystemD-boot comes installed with Arch. You just have to run
 
 to install it into your EFI partition.
 
-Copy everything in `/boot` to `/efi`
-
-`cp /boot/* /efi/`
-
-For a full explanation visit [Arch Wiki Systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
-
 ##### Note:
 >If you get a warning or error about not being able to set EFI variables, you'll have to install the `efivar` 
 and `efibootmgr` packages.
@@ -373,6 +361,21 @@ and `efibootmgr` packages.
 >
 >This will allow bootctl to tell your motherboard firmware where its boot image is located
 
+Now we will bind mount our /boot to /efi/EFI/arch
+
+`mkdir /efi/EFI/arch`
+`vim /etc/fstab`
+
+Now we're getting into vim.
+- Press ESC to make sure you are in NORMAL mode
+- Type`//efi` and press ENTER
+- Press `Shift+A` to enter INSERT mode at the end of the line
+- Press ENTER twice to get some space
+- Type `/efi/EFI/arch    /boot    none    defaults,bind    0 0`
+- Press ESC to return to NORMAL mode
+- Type `:wq` to write and quit
+
+For a full explanation visit [Arch Wiki Systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
 
 #### Creating a new boot entry
 The easiest way of getting the boot entry file correct in the terminal is through vim. Vim does not come with Arch, so you're going to have to install it if you didn't include it with your `pacstrap`. Run `pacman -S vim`
@@ -381,24 +384,26 @@ We will create a boot entry file at `/efi/loader/entries/arch.conf`
 
 `vim /efi/loader/entries/arch.conf`
 
-Now we're getting into vim.
-- Make sure you're in normal mode by pressing `ESC`.
-- Then type `:r !blkid` to run the `blkid` command and get its output.
-- We want to copy the UUID for our root partition, which should be at `/dev/nvme0n1p2`. Type `/nvme0n1p2` to jump to the line which has the UUID for our root partition.
-- Exit to normal mode by pressing `enter`. Now type `vi"` to select the UUID for the partition. Yes that is correct, you actually have to type the `"`.
-- Now press `y` to copy the UUID.
-- Move your cursor to the top of the file and press `p` to paste the UUID onto the first line.
-- Now enter insert mode at the end of the line by typing `A` (capitalisation matters!)
-- Add some newlines after it by pressing enter, we want the UUID to be separated from the rest of the blkid command output.
-- Exit to normal mode by pressing ESC and move your cursor over the blkid command output.
-- Type `vapd` to get rid of it all.
-- Now enter insert mode by pressing `i` and edit the file to look like the example below. Typing `:wq` will write your changes and exit vim.
+More vim goodness.
+- Press ESC to make sure you are in NORMAL mode
+- Type `:r !blkid` to run the `blkid` command and print its output into the file
+- We want to copy the UUID for our root partition, which should be at `/dev/nvme0n1p2`
+-- Type `/nvme0n1p2` to jump to the line which has the UUID for our root partition
+- Exit to NORMAL mode by pressing ENTER 
+- Type `vi"` to enter VISUAL mode and highlight everything between the quotes
+- Press `y` to copy the UUID
+- Using your arrow keys, move your cursor to the first line in the file and press `p` to paste the UUID
+- Press `Shift+A` to enter INSERT mode at the end of the line
+- Press ENTER a few times to get some space
+- Press ESC to return to NORMAL mode
+- Type `vapd` to enter VISUAL mode, highlight the block of text from blank-line to blank-line and delete it.
+- Now enter INSERT mode by pressing `i` and edit the file to look like the example below. Typing `:wq` will write your changes and exit vim.
 
 ```txt
 title Arch Linux
-linux /vmlinuz-linux
-initrd /REPLACEME-ucode.img
-initrd /initramfs-linux.img
+linux /EFI/arch/vmlinuz-linux-lts
+initrd /intel-ucode.img
+initrd /EFI/arch/initramfs-linux-lts.img
 options root=UUID="THE_UUID_YOU_COPIED" rw quiet splash
 ```
 ##### Note:
@@ -445,11 +450,11 @@ I will add an administrator account that is not root. You have to enable the whe
 Edit `/etc/sudoers` through `visudo` (Never edit `/etc/sudoers` directly, it'll get you in trouble!).
 
 `EDITOR=vim visudo`
-- Make sure you're in normal mode by pressing `ESC`.
+- Make sure you're in NORMAL mode by pressing `ESC`.
 - Type `/#%whe` then press `Enter`
-- Press `i` to enter insert mode
+- Press `i` to enter INSERT mode
 - Press `del` to delete the `#`
-- Press `esc` to enter normal mode
+- Press `esc` to enter NORMAL mode
 - Type `:wq` to write changes and quit
 
 The result should look like this.
