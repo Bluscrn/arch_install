@@ -620,7 +620,7 @@ Also specify which graphics to use on boot:
 ```sh
 $ optimus-manager --set-startup intel
 $ optimus-manager --set-startup nvidia
-$ optimus-manager --switch hybrid   # Use hybrid graphics (Requires a patch to xorg-server)
+$ optimus-manager --set-startup hybrid   # Use hybrid graphics (Requires a patch to xorg-server)
 ```
 
 ### Audio
