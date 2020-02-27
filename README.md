@@ -368,7 +368,7 @@ Now we will bind mount our /boot to /efi/EFI/arch
 
 Now we're getting into vim.
 - Press ESC to make sure you are in NORMAL mode
-- Type`//efi` and press ENTER
+- Type`//efi` and press ENTER the first / is a regex search
 - Press `Shift+A` to enter INSERT mode at the end of the line
 - Press ENTER twice to get some space
 - Type `/efi/EFI/arch    /boot    none    defaults,bind    0 0`
@@ -388,7 +388,7 @@ More vim goodness.
 - Press ESC to make sure you are in NORMAL mode
 - Type `:r !blkid` to run the `blkid` command and print its output into the file
 - We want to copy the UUID for our root partition, which should be at `/dev/nvme0n1p2`
--- Type `/nvme0n1p2` to jump to the line which has the UUID for our root partition
+- Type `/nvme0n1p2` to jump to the line which has the UUID for our root partition
 - Exit to NORMAL mode by pressing ENTER 
 - Type `vi"` to enter VISUAL mode and highlight everything between the quotes
 - Press `y` to copy the UUID
